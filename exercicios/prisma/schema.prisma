@@ -9,14 +9,17 @@ datasource db {
 }
 
 model Guest {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+  teacherId Int
 }
 
 model Teacher {
-  id      Int    @id @default(autoincrement())
-  name    String @unique
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
   subject String
+  guests  Guest[]
 }
 
 model User {

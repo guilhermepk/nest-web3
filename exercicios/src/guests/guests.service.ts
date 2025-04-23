@@ -4,11 +4,13 @@ import { UpdateGuestDto } from "./dtos/update-guest.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import tryCatch from "src/common/functions/tryCatch";
 import { PaginationDto } from "../common/dtos/pagination.dto";
+import { TeachersService } from "src/teachers/teachers.service";
 
 @Injectable()
 export class GuestsService {
     constructor(
-        private readonly prismaService: PrismaService
+        private readonly prismaService: PrismaService,
+        private readonly teachersService: TeachersService
     ) { }
 
     async findById(id: number) {
@@ -16,6 +18,9 @@ export class GuestsService {
             return await this.prismaService.guest.findFirstOrThrow({
                 where: {
                     id
+                },
+                include: {
+                    teacher: true
                 }
             });
         },
@@ -29,6 +34,9 @@ export class GuestsService {
             return await this.prismaService.guest.findFirstOrThrow({
                 where: {
                     name
+                },
+                include: {
+                    teacher: true
                 }
             });
         },
@@ -45,16 +53,13 @@ export class GuestsService {
 
             const skip = (page - 1) * itemsPerPage;
 
-            console.log({
-                skip,
-                take: itemsPerPage,
-                orderBy: { id: "asc" }
-            })
-
             const found = await this.prismaService.guest.findMany({
                 skip,
                 take: itemsPerPage,
-                orderBy: { id: "asc" }
+                orderBy: { id: "asc" },
+                include: {
+                    teacher: true
+                }
             });
             if (!found || found.length < 1) throw new NotFoundException(`Nenhum visitante encontrado!`);
 
@@ -77,6 +82,8 @@ export class GuestsService {
         return await tryCatch(async () => {
             await this.verifyIfNameExists(data.name);
 
+            await this.teachersService.findById(data.teacherId);
+
             const created = await this.prismaService.guest.create({ data });
 
             return { message: `Visitante ${created.id} - ${created.name} criado com sucesso!` };
@@ -92,6 +99,8 @@ export class GuestsService {
             await this.findById(id);
 
             if (data.name) await this.verifyIfNameExists(data.name);
+
+            if (data.teacherId) await this.teachersService.findById(data.teacherId);
 
             const updated = await this.prismaService.guest.update({
                 where: { id },

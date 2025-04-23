@@ -16,6 +16,9 @@ export class TeachersService {
             return await this.prismaService.teacher.findFirstOrThrow({
                 where: {
                     id
+                },
+                include: {
+                    guests: true
                 }
             });
         },
@@ -29,6 +32,9 @@ export class TeachersService {
             return await this.prismaService.teacher.findFirstOrThrow({
                 where: {
                     name
+                },
+                include: {
+                    guests: true
                 }
             });
         },
@@ -45,16 +51,13 @@ export class TeachersService {
 
             const skip = (page - 1) * itemsPerPage;
 
-            console.log({
-                skip,
-                take: itemsPerPage,
-                orderBy: { id: "asc" }
-            })
-
             const found = await this.prismaService.teacher.findMany({
                 skip,
                 take: itemsPerPage,
-                orderBy: { id: "asc" }
+                orderBy: { id: "asc" },
+                include: {
+                    guests: true
+                }
             });
             if (!found || found.length < 1) throw new NotFoundException(`Nenhum professor encontrado!`);
 
