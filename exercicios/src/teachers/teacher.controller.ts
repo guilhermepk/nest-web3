@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { TeachersService } from "./teachers.service";
 import { CreateTeacherDto } from "./dtos/create-teacher.dto";
 import { UpdateTeacherDto } from "./dtos/update-teacher.dto";
@@ -6,7 +6,9 @@ import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { LoggerInterceptor } from "src/common/interceptors/logger.interceptor";
 import { AddHeaderInterceptor } from "src/common/interceptors/addHeader.interceptor";
 import { PrintBodyInterceptor } from "src/common/interceptors/printBody.interceptor";
+import { AdminGuard } from "src/common/guards/admin.guard";
 
+@UseGuards(AdminGuard)
 @Controller('teachers')
 @UseInterceptors(LoggerInterceptor)
 export class TeachersController {
